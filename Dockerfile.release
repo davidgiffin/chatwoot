@@ -15,7 +15,6 @@ RUN apk add --update --no-cache \
       tzdata \
       postgresql-dev \
       git \
-    && bundle config set without 'development test' \
     && bundle install \
     && yarn install --check-files
 
