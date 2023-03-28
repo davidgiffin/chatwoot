@@ -7,12 +7,22 @@ services:
       dockerfile: Dockerfile.release
     environment:
       RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chatwoot
+      POSTGRES_HOST: pg
+      POSTGRES_PORT: 5432
     depends_on:
     - pg
-    - sidekiq
     - redis
+    - sidekiq
   pg:
-    image: postgres
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chatwoot
     ports:
     - '5432'
   sidekiq:
@@ -22,10 +32,18 @@ services:
     command: bundle exec sidekiq
     environment:
       RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chatwoot
+      POSTGRES_HOST: pg
+      POSTGRES_PORT: 5432
     depends_on:
     - pg
     - redis
   redis:
-    image: redis
+    image: redis:6.2
+    environment:
+      REDIS_URL: redis://redis:6379/0
     ports:
     - '6379'

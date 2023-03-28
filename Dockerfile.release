@@ -1,27 +1,38 @@
+# Use an official Alpine Linux as a parent image
 FROM ruby:3.1.3-alpine
 
-ENV RAILS_ENV=development
-
-RUN apk add --update --no-cache \
-    build-base \
-    nodejs \
-    yarn \
-    tzdata \
-    postgresql-dev \
-    postgresql-client \
-    git
-
+# Set the working directory to /app
 WORKDIR /app
 
+# Copy the Gemfile into the container at /app
 COPY Gemfile Gemfile.lock ./
 
-RUN bundle config set without 'production staging' && \
-    bundle install
+# Install any needed packages specified in Gemfile
+RUN apk add --update --no-cache \
+      build-base \
+      nodejs \
+      yarn \
+      tzdata \
+      postgresql-dev \
+      git \
+    && bundle config set without 'development test' \
+    && bundle install \
+    && yarn install --check-files
 
+# Copy the current directory contents into the container at /app
 COPY . .
 
-RUN yarn install --check-files
+# Set Rails environment to development
+ENV RAILS_ENV development
 
+# Create logs and tmp directories
+RUN mkdir -p log tmp
+
+# Make port 3000 available to the world outside this container
 EXPOSE 3000
 
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+# Define environment variable
+ENV NAME World
+
+# Run the command to start the Rails server
+CMD ["rails", "server", "-b", "0.0.0.0"]
